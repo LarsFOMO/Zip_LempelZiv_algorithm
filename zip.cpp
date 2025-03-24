@@ -1,9 +1,5 @@
-
-    // Lempel-Ziv Algorithm (LZ77) [does not work as expected!]
-
-#include <stdio.h>
 #include <iostream>
-#include <cstring>
+#include <string>
 #include <vector>
 #include <sstream> // Include the sstream header
 
@@ -14,64 +10,73 @@ std::string to_string(int value) {
 }
 
 int main() {
-
-    char input[] = "ABBABBABBBAABABA";
+    std::string input = "ABBABBABBBAABABA";
     int window_length = 4;
     int l_max = 8;
     int starting_pos = 0;
     bool flag = true;
     int counter = 0;
+    size_t position;
+    int temp_window_size;
+    bool no_match = false;
 
-    std::vector<char> window(window_length + 1);
-    std::fill(window.begin(), window.end(), '\0');
-    std::vector<std::vector<std::string>> encoded_input; // Change to vector of strings
+    std::string window(window_length, 'x');  // Fenster mit 4 'x' initialisieren
+    std::vector<std::vector<std::string>> encoded_input;
 
-    for (int i = 0; i < strlen(input); i++) {
-        counter = 0;
-        starting_pos = 0;
-        for (int k = 0; k < l_max; k++) {
-            if (input[i] == window[k]) {
-                if (flag == true) {
-                    starting_pos = window_length - k;
-                    counter = 1;
-                    flag = false;
-                }
-                else {
-                    counter++;
-                    //if (k > 3)
-                        //i =+ (k);
-                }
+    for (int i = 0; i < input.length(); i++) {
+        temp_window_size = window_length;
+        while (1) {
+            if (i + temp_window_size > input.length()) {
+                temp_window_size -= (i+temp_window_size)%input.length();
             }
-            else
-                if (flag == false) {
-                    
+            position = window.find(input.substr(i, temp_window_size));
+            if (position == std::string::npos) {
+                temp_window_size--;
+                if (temp_window_size == 0) {
+                    no_match = true;
                     break;
                 }
-        }
-        if (counter == 0)
-            encoded_input.push_back({to_string(0), std::string(1, input[i])});  // (0, B) oder (0, A)
-        else
-            encoded_input.push_back({to_string(1), to_string(starting_pos), to_string(counter)});   // (1, start_pos, counter)
-        flag = true;
-
-        // Ensure i is within bounds before accessing encoded_input
-        if (i < encoded_input.size()) {
-            for (const auto& num : encoded_input[i]) {
-                std::cout << num << " ";
+            }
+            else {
+                // max length of 8 
+                std::cout << "input STR: " << input.substr(i, temp_window_size);
+                std::cout << "   match Length: " << temp_window_size;
+                std::cout << "   Position: " << position;
+                break;
             }
         }
-        std::cout << "---";
-        printf(" %i --- ", i);
-        for (int c = 0; c < window_length; c++) {
-            std::cout << window[c] << " ";
+        if (no_match) {
+            encoded_input.push_back({to_string(0), std::string(1, input[i])});
         }
-        std::cout << std::endl;
+        else {
+            encoded_input.push_back({to_string(1), to_string(position), to_string(temp_window_size)});
+        }
+        no_match = false;
 
-        for (int x = 0; x < window_length - 1; x++) {
-            window[x] = window[x + 1];
+        std::cout << "   Fenster: " << window;
+
+        if (temp_window_size >= 1) {
+            i += temp_window_size - 1;
         }
-        window[window_length - 1] = input[i];
+
+        // Update the window with the next characters
+        for (int k = window_length; k > 0; k--) {
+            if (i - (window_length - k) >= 0)
+                window[k - 1] = input[i - (window_length - k)];
+            else
+                window[k - 1] = 'x';
+        }
+        std::cout << "   Fenster (update): " << window;
+
+        // Access the last pushed element in encoded_input
+        std::cout << "   encoded: " << encoded_input[encoded_input.size() - 1][0] << " " << encoded_input[encoded_input.size() - 1][1];
+        if (encoded_input[encoded_input.size() - 1].size() > 2) {
+            std::cout << " " << encoded_input[encoded_input.size() - 1][2] << std::endl;
+        }
+        else 
+            std::cout << std::endl;
     }
+    
 
     return 0;
 }
