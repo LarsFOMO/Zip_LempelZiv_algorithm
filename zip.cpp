@@ -10,7 +10,7 @@ std::string to_string(int value) {
 }
 
 int main() {
-    std::string input = "ABBABBABBBAABABA";
+    std::string input = "ABB ABB ABB BAA BABA";
     int window_length = 4;
     int l_max = 8;
     int starting_pos = 0;
@@ -38,7 +38,16 @@ int main() {
                 }
             }
             else {
-                // max length of 8 
+                // max length of 8
+                int static_window_size = temp_window_size;
+                while (input.substr(i+temp_window_size, static_window_size) == window.substr(position, static_window_size)) {
+                    if (l_max > temp_window_size) {
+                        temp_window_size = temp_window_size+static_window_size;
+                    }
+                    else {
+                        break;
+                    }    
+                }
                 std::cout << "input STR: " << input.substr(i, temp_window_size);
                 std::cout << "   match Length: " << temp_window_size;
                 std::cout << "   Position: " << position;
