@@ -1,2 +1,2 @@
 # Zip_LempelZiv_algorithm
-hallo
+Lempel Ziv Algorithmus (ZIP) implementiert um Daten zu komprimieren. 
